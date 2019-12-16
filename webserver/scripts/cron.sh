@@ -1,9 +1,9 @@
 #!/bin/bash
 
-PARTYMAN_PATH=~/partyman
-PARTICL_PATH=~/particlcore
-HTML_PATH=$PARTYMAN_PATH/webserver/public_html
+COLDSTAKING_PATH=~/capricoinplus/coldstaking
+CAPRICOINPLUS_PATH=~/capricoinplus-core
+HTML_PATH=$COLDSTAKING_PATH/webserver/public_html
 
-"$PARTYMAN_PATH"/partyman status > "$HTML_PATH"/partyman-status.tmp
-"$PARTYMAN_PATH"/partyman stakingnode stats >> "$HTML_PATH"/partyman-status.tmp
-"$PARTICL_PATH"/particl-cli getwalletinfo | grep watchonly >> "$HTML_PATH"/partyman-status.tmp
+"$COLDSTAKING_PATH"/coldstaking status > "$HTML_PATH"/coldstaking-status.tmp
+"$COLDSTAKING_PATH"/coldstaking stakingnode stats >> "$HTML_PATH"/coldstaking-status.tmp
+"$CAPRICOINPLUS_PATH"/capricoinplus-cli getwalletinfo | grep watchonly >> "$HTML_PATH"/coldstaking-status.tmp

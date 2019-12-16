@@ -5,6 +5,7 @@
 
 # Copyright (c) 2015-2017 moocowmoo
 # Copyright (c) 2017 dasource
+# Copyright (c) 2020 CapricoinPlus
 
 # variables are for putting things in ----------------------------------------
 
@@ -17,19 +18,19 @@ C_NORM="\e[0m"
 
 LC_NUMERIC="en_US.UTF-8"
 
-PARTYD_RUNNING=0
-PARTYD_RESPONDING=0
-PARTYMAN_VERSION=$(cat "$PARTYMAN_GITDIR/VERSION")
-DATA_DIR="$HOME/.particl"
-DOWNLOAD_PAGE="https://github.com/particl/particl-core/releases"
-#PARTYMAN_CHECKOUT=$(GIT_DIR=$PARTYMAN_GITDIR/.git GIT_WORK_TREE=$PARTYMAN_GITDIR git describe --dirty | sed -e "s/^.*-\([0-9]\+-g\)/\1/" )
-#if [ "$PARTYMAN_CHECKOUT" == "v"$PARTYMAN_VERSION ]; then
-#    PARTYMAN_CHECKOUT=""
+CAPRICOINPLUSD_RUNNING=0
+CAPRICOINPLUSD_RESPONDING=0
+COLDSTAKING_VERSION=$(cat "$COLDSTAKING_GITDIR/VERSION")
+DATA_DIR="$HOME/.capricoinplus"
+DOWNLOAD_PAGE="https://github.com/Capricoinofficial/capricoinplus-core/releases"
+#COLDSTAKING_CHECKOUT=$(GIT_DIR=$COLDSTAKING_GITDIR/.git GIT_WORK_TREE=$COLDSTAKING_GITDIR git describe --dirty | sed -e "s/^.*-\([0-9]\+-g\)/\1/" )
+#if [ "$COLDSTAKING_CHECKOUT" == "v"$COLDSTAKING_VERSION ]; then
+#    COLDSTAKING_CHECKOUT=""
 #else
-#    PARTYMAN_CHECKOUT=" ("$PARTYMAN_CHECKOUT")"
+#    COLDSTAKING_CHECKOUT=" ("$COLDSTAKING_CHECKOUT")"
 #fi
 
-curl_cmd="timeout 7 curl -4 -s -L -A partyman/$PARTYMAN_VERSION"
+curl_cmd="timeout 7 curl -4 -s -L -A coldstaking/$COLDSTAKING_VERSION"
 wget_cmd='wget -4 --no-check-certificate -q'
 
 
@@ -185,17 +186,17 @@ _check_dependencies() {
     fi
 }
 
-# attempt to locate particl-cli executable.
-# search current dir, ~/.particl, `which particl-cli` ($PATH), finally recursive
-_find_particl_directory() {
+# attempt to locate capricoinplus-cli executable.
+# search current dir, ~/.capricoinplus, `which capricoinplus-cli` ($PATH), finally recursive
+_find_capricoinplus_directory() {
 
     INSTALL_DIR=''
 
-    # particl-cli in PATH
+    # capricoinplus-cli in PATH
 
-    if [ -n "$(type -P particl-cli 2>/dev/null)" ] ; then
-        INSTALL_DIR=$(readlink -f "$(type -P particl-cli)")
-        INSTALL_DIR=${INSTALL_DIR%%/particl-cli*};
+    if [ -n "$(type -P capricoinplus-cli 2>/dev/null)" ] ; then
+        INSTALL_DIR=$(readlink -f "$(type -P capricoinplus-cli)")
+        INSTALL_DIR=${INSTALL_DIR%%/capricoinplus-cli*};
 
         #TODO prompt for single-user or multi-user install
 
@@ -205,63 +206,63 @@ _find_particl_directory() {
 
             # if not run as root
             if [ $EUID -ne 0 ] ; then
-                die "\n${messages["exec_found_in_system_dir"]} $INSTALL_DIR${messages["run_partyman_as_root"]} ${messages["exiting"]}"
+                die "\n${messages["exec_found_in_system_dir"]} $INSTALL_DIR${messages["run_coldstaking_as_root"]} ${messages["exiting"]}"
             fi
         fi
 
-    # particl-cli not in PATH
+    # capricoinplus-cli not in PATH
 
         # check current directory
-    elif [ -e ./particl-cli ] ; then
+    elif [ -e ./capricoinplus-cli ] ; then
         INSTALL_DIR='.' ;
 
-        # check ~/.particl directory
-    elif [ -e "$HOME/.particl/particl-cli" ] ; then
-        INSTALL_DIR="$HOME/.particl" ;
+        # check ~/.capricoinplus directory
+    elif [ -e "$HOME/.capricoinplus/capricoinplus-cli" ] ; then
+        INSTALL_DIR="$HOME/.capricoinplus" ;
 
-    elif [ -e "$HOME/particlcore/particl-cli" ] ; then
-        INSTALL_DIR="$HOME/particlcore" ;
+    elif [ -e "$HOME/capricoinplus-core/capricoinplus-cli" ] ; then
+        INSTALL_DIR="$HOME/capricoinplus-core" ;
     fi
 
     if [ -n "$INSTALL_DIR" ]; then
         INSTALL_DIR=$(readlink -f "$INSTALL_DIR") 2>/dev/null
         if [ ! -e "$INSTALL_DIR" ]; then
-            echo -e "${C_RED}${messages["particlcli_not_found_in_cwd"]}, ~/particlcore, or \$PATH. -- ${messages["exiting"]}$C_NORM"
+            echo -e "${C_RED}${messages["capricoinpluscli_not_found_in_cwd"]}, ~/capricoinplus-core, or \$PATH. -- ${messages["exiting"]}$C_NORM"
             exit 1
         fi
     else
-        echo -e "${C_RED}${messages["particlcli_not_found_in_cwd"]}, ~/particlcore, or \$PATH. -- ${messages["exiting"]}$C_NORM"
+        echo -e "${C_RED}${messages["capricoinpluscli_not_found_in_cwd"]}, ~/capricoinplus-core, or \$PATH. -- ${messages["exiting"]}$C_NORM"
         exit 1
     fi
 
-    PARTY_CLI="$INSTALL_DIR/particl-cli"
+    CAPRICOINPLUS_CLI="$INSTALL_DIR/capricoinplus-cli"
 
-    # check INSTALL_DIR has particld and particl-cli
-    if [ ! -e "$INSTALL_DIR/particld" ]; then
-        echo -e "${C_RED}${messages["particld_not_found"]} $INSTALL_DIR -- ${messages["exiting"]}$C_NORM"
+    # check INSTALL_DIR has capricoinplusd and capricoinplus-cli
+    if [ ! -e "$INSTALL_DIR/capricoinplusd" ]; then
+        echo -e "${C_RED}${messages["capricoinplusd_not_found"]} $INSTALL_DIR -- ${messages["exiting"]}$C_NORM"
         exit 1
     fi
 
-    if [ ! -e "$PARTY_CLI" ]; then
-        echo -e "${C_RED}${messages["particlcli_not_found"]} $INSTALL_DIR -- ${messages["exiting"]}$C_NORM"
+    if [ ! -e "$CAPRICOINPLUS_CLI" ]; then
+        echo -e "${C_RED}${messages["capricoinpluscli_not_found"]} $INSTALL_DIR -- ${messages["exiting"]}$C_NORM"
         exit 1
     fi
 
 }
 
 
-_check_partyman_updates() {
-    GITHUB_PARTYMAN_VERSION=$( "$curl_cmd" -i https://raw.githubusercontent.com/dasource/partyman/master/VERSION 2>/dev/null | head -n 1 | cut -d$' ' -f2 )
-    if [ "$GITHUB_PARTYMAN_VERSION" == 200 ]; then # check to make sure github is returning the data
-        GITHUB_PARTYMAN_VERSION=$( $curl_cmd https://raw.githubusercontent.com/dasource/partyman/master/VERSION 2>/dev/null )
-        if [ -n "$GITHUB_PARTYMAN_VERSION" ] && [ "$PARTYMAN_VERSION" != "$GITHUB_PARTYMAN_VERSION" ]; then
+_check_coldstaking_updates() {
+    GITHUB_COLDSTAKING_VERSION=$( "$curl_cmd" -i https://raw.githubusercontent.com/dasource/coldstaking/master/VERSION 2>/dev/null | head -n 1 | cut -d$' ' -f2 )
+    if [ "$GITHUB_COLDSTAKING_VERSION" == 200 ]; then # check to make sure github is returning the data
+        GITHUB_COLDSTAKING_VERSION=$( $curl_cmd https://raw.githubusercontent.com/dasource/coldstaking/master/VERSION 2>/dev/null )
+        if [ -n "$GITHUB_COLDSTAKING_VERSION" ] && [ "$COLDSTAKING_VERSION" != "$GITHUB_COLDSTAKING_VERSION" ]; then
             echo -e "\n"
-            echo -e "${C_RED}${0##*/} ${messages["requires_updating"]} $C_GREEN$GITHUB_PARTYMAN_VERSION$C_RED\n${messages["requires_sync"]}$C_NORM\n"
+            echo -e "${C_RED}${0##*/} ${messages["requires_updating"]} $C_GREEN$GITHUB_COLDSTAKING_VERSION$C_RED\n${messages["requires_sync"]}$C_NORM\n"
 
             die "${messages["exiting"]}"
         fi
     else
-        GITHUB_PARTYMAN_VERSION=$PARTYMAN_VERSION # force to local version during github issues
+        GITHUB_COLDSTAKING_VERSION=$COLDSTAKING_VERSION # force to local version during github issues
     fi
 }
 
@@ -296,7 +297,7 @@ _get_platform_info() {
             ;;
         *)
             err "${messages["err_unknown_platform"]} $PLATFORM"
-            err "${messages["err_partyman_supports"]}"
+            err "${messages["err_coldstaking_supports"]}"
             die "${messages["exiting"]}"
             ;;
     esac
@@ -305,12 +306,12 @@ _get_platform_info() {
 _get_versions() {
     _get_platform_info
 
-    if [ -z "$PARTY_CLI" ]; then PARTY_CLI='echo'; fi
-    CURRENT_VERSION=$( $PARTY_CLI --version | grep -m1 Particl | sed 's/\Particl Core RPC client version v//g' | sed 's/\.[^.]*$//' 2>/dev/null ) 2>/dev/null
+    if [ -z "$CAPRICOINPLUS_CLI" ]; then CAPRICOINPLUS_CLI='echo'; fi
+    CURRENT_VERSION=$( $CAPRICOINPLUS_CLI --version | grep -m1 Capricoin+ | sed 's/\Capricoin+ Core RPC client version v//g') 2>/dev/null
 
     unset LATEST_VERSION
     LVCOUNTER=0
-    RELEASES=$( $curl_cmd https://api.github.com/repos/particl/particl-core/releases )
+    RELEASES=$( $curl_cmd https://api.github.com/repos/Capricoinofficial/capricoinplus-core/releases )
     while [ -z "$LATEST_VERSION" ] && [ $LVCOUNTER -lt 5 ]; do
         RELEASE=$( echo "$RELEASES" | jq -r .[$LVCOUNTER] 2>/dev/null )
         PR=$( echo "$RELEASE" | jq .prerelease)
@@ -325,38 +326,38 @@ _get_versions() {
         die "\n${messages["err_could_not_get_version"]} $DOWNLOAD_PAGE -- ${messages["exiting"]}"
     fi
 
-    DOWNLOAD_URL="https://github.com/particl/particl-core/releases/download/v${LATEST_VERSION}/particl-${LATEST_VERSION}-${ARCH}.tar.gz"
-    DOWNLOAD_FILE="particl-${LATEST_VERSION}-${ARCH}.tar.gz"
+    DOWNLOAD_URL="https://github.com/Capricoinofficial/capricoinplus-core/releases/download/v${LATEST_VERSION}/capricoinplus-${LATEST_VERSION}-${ARCH}.tar.gz"
+    DOWNLOAD_FILE="capricoinplus-${LATEST_VERSION}-${ARCH}.tar.gz"
 
 }
 
-_check_particld_state() {
-    _get_particld_proc_status
-    PARTYD_RUNNING=0
-    PARTYD_RESPONDING=0
-    if [ "$PARTYD_HASPID" -gt 0 ] && [ "$PARTYD_PID" -gt 0 ]; then
-        PARTYD_RUNNING=1
+_check_capricoinplusd_state() {
+    _get_capricoinplusd_proc_status
+    CAPRICOINPLUSD_RUNNING=0
+    CAPRICOINPLUSD_RESPONDING=0
+    if [ "$CAPRICOINPLUSD_HASPID" -gt 0 ] && [ "$CAPRICOINPLUSD_PID" -gt 0 ]; then
+        CAPRICOINPLUSD_RUNNING=1
     fi
-    if [ "$( $PARTY_CLI help 2>/dev/null | wc -l )" -gt 0 ]; then
-        PARTYD_RESPONDING=1
-        PARTYD_WALLETSTATUS=$( "$PARTY_CLI" getwalletinfo | jq -r .encryptionstatus )
-        PARTYD_WALLET=$( "$PARTY_CLI" getwalletinfo | jq -r .hdmasterkeyid )
-        if [ "$PARTYD_WALLET"  == "null" ]; then
-            PARTYD_WALLET=$( "$PARTY_CLI" getwalletinfo | jq -r .hdseedid )
+    if [ "$( $CAPRICOINPLUS_CLI help 2>/dev/null | wc -l )" -gt 0 ]; then
+        CAPRICOINPLUSD_RESPONDING=1
+        CAPRICOINPLUSD_WALLETSTATUS=$( "$CAPRICOINPLUS_CLI" getwalletinfo | jq -r .encryptionstatus )
+        CAPRICOINPLUSD_WALLET=$( "$CAPRICOINPLUS_CLI" getwalletinfo | jq -r .hdmasterkeyid )
+        if [ "$CAPRICOINPLUSD_WALLET"  == "null" ]; then
+            CAPRICOINPLUSD_WALLET=$( "$CAPRICOINPLUS_CLI" getwalletinfo | jq -r .hdseedid )
         fi
-        PARTYD_TBALANCE=$( "$PARTY_CLI" getwalletinfo | jq -r .total_balance )
+        CAPRICOINPLUSD_TBALANCE=$( "$CAPRICOINPLUS_CLI" getwalletinfo | jq -r .total_balance )
     fi
 }
 
-restart_particld(){
+restart_capricoinplusd(){
 
-    if [ "$PARTYD_RUNNING" == 1 ]; then
-        pending " --> ${messages["stopping"]} particld. ${messages["please_wait"]}"
-        $PARTY_CLI stop > /dev/null 2>&1
+    if [ "$CAPRICOINPLUSD_RUNNING" == 1 ]; then
+        pending " --> ${messages["stopping"]} capricoinplusd. ${messages["please_wait"]}"
+        $CAPRICOINPLUS_CLI stop > /dev/null 2>&1
         sleep 15
-        killall -9 particld particl-shutoff 2>/dev/null
+        killall -9 capricoinplusd capricoinplus-shutoff 2>/dev/null
         ok "${messages["done"]}"
-        PARTYD_RUNNING=0
+        CAPRICOINPLUSD_RUNNING=0
     fi
 
     pending " --> ${messages["deleting_cache_files"]} $DATA_DIR/ "
@@ -368,43 +369,43 @@ restart_particld(){
     #    "$DATA_DIR"/peers.dat
     ok "${messages["done"]}"
 
-    pending " --> ${messages["starting_particld"]}"
-    "$INSTALL_DIR/particld" -daemon > /dev/null 2>&1
-    PARTYD_RUNNING=1
-    PARTYD_RESPONDING=0
+    pending " --> ${messages["starting_capricoinplusd"]}"
+    "$INSTALL_DIR/capricoinplusd" -daemon > /dev/null 2>&1
+    CAPRICOINPLUSD_RUNNING=1
+    CAPRICOINPLUSD_RESPONDING=0
     ok "${messages["done"]}"
 
-    pending " --> ${messages["waiting_for_particld_to_respond"]}"
+    pending " --> ${messages["waiting_for_capricoinplusd_to_respond"]}"
     echo -en "${C_YELLOW}"
-    while [ $PARTYD_RUNNING == 1 ] && [ $PARTYD_RESPONDING == 0 ]; do
+    while [ $CAPRICOINPLUSD_RUNNING == 1 ] && [ $CAPRICOINPLUSD_RESPONDING == 0 ]; do
         echo -n "."
-        _check_particld_state
+        _check_capricoinplusd_state
         sleep 5
     done
-    if [ $PARTYD_RUNNING == 0 ]; then
-        die "\n - particld unexpectedly quit. ${messages["exiting"]}"
+    if [ $CAPRICOINPLUSD_RUNNING == 0 ]; then
+        die "\n - capricoinplusd unexpectedly quit. ${messages["exiting"]}"
     fi
     ok "${messages["done"]}"
-    pending " --> particl-cli getinfo"
+    pending " --> capricoinplus-cli getinfo"
     echo
-    $PARTY_CLI -getinfo
+    $CAPRICOINPLUS_CLI -getinfo
     echo
 
 }
 
-install_particld(){
+install_capricoinplusd(){
 
-    INSTALL_DIR=$HOME/particlcore
-    PARTY_CLI="$INSTALL_DIR/particl-cli"
+    INSTALL_DIR=$HOME/capricoinplus-core
+    CAPRICOINPLUS_CLI="$INSTALL_DIR/capricoinplus-cli"
 
     if [ -e "$INSTALL_DIR" ] ; then
         die "\n - ${messages["preexisting_dir"]} $INSTALL_DIR ${messages["found"]} ${messages["run_reinstall"]} ${messages["exiting"]}"
     fi
 
     if [ -z "$UNATTENDED" ] ; then
-        if [ "$USER" != "particl" ]; then
+        if [ "$USER" != "capricoinplus" ]; then
             echo
-            warn "We strongly advise you run this installer under user \"particl\" with sudo access. Are you sure you wish to continue as $USER?"
+            warn "We strongly advise you run this installer under user \"capricoinplus\" with sudo access. Are you sure you wish to continue as $USER?"
             if ! confirm " [${C_GREEN}y${C_NORM}/${C_RED}N${C_NORM}] $C_CYAN"; then
                 echo -e "${C_RED}${messages["exiting"]}$C_NORM"
                 echo ""
@@ -432,12 +433,12 @@ install_particld(){
     mkdir -p "$INSTALL_DIR"
     mkdir -p "$DATA_DIR"
 
-    if [ ! -e "$DATA_DIR/particl.conf" ] ; then
-        pending " --> ${messages["creating"]} $DATA_DIR/particl.conf... "
+    if [ ! -e "$DATA_DIR/capricoinplus.conf" ] ; then
+        pending " --> ${messages["creating"]} $DATA_DIR/capricoinplus.conf... "
 
         while read -r; do
             eval echo "$REPLY"
-        done < "$PARTYMAN_GITDIR/particl.conf.template" > "$DATA_DIR/particl.conf"
+        done < "$COLDSTAKING_GITDIR/capricoinplus.conf.template" > "$DATA_DIR/capricoinplus.conf"
         ok "${messages["done"]}"
     fi
 
@@ -451,7 +452,7 @@ install_particld(){
     tput sc
     echo -e "$C_CYAN"
     $wget_cmd -O - "$DOWNLOAD_URL" | pv -trep -s27M -w80 -N wallet > "$DOWNLOAD_FILE"
-    $wget_cmd -O - "https://raw.githubusercontent.com/particl/gitian.sigs/master/${LATEST_VERSION}-linux/tecnovert/particl-linux-${LATEST_VERSION}-build.assert" | pv -trep -w80 -N checksums > "${DOWNLOAD_FILE}.DIGESTS.txt"
+    $wget_cmd -O - "https://raw.githubusercontent.com/Capricoinofficial/gitian.sigs/master/${LATEST_VERSION}-linux/CapricoinPlus/capricoinplus-linux-${LATEST_VERSION}-build.assert" | pv -trep -w80 -N checksums > "${DOWNLOAD_FILE}.DIGESTS.txt"
     echo -ne "$C_NORM"
     clear_n_lines 2
     tput rc
@@ -468,10 +469,10 @@ install_particld(){
 
     pending " --> ${messages["checksumming"]} ${DOWNLOAD_FILE}... "
     SHA256SUM=$( sha256sum "$DOWNLOAD_FILE" )
-    SHA256PASS=$( grep -c "$SHA256SUM" "${DOWNLOAD_FILE}.DIGESTS.txt" )
+    SHA256PASS=$( grep "$SHA256SUM" "${DOWNLOAD_FILE}.DIGESTS.txt" )
     if [ "$SHA256PASS" -lt 1 ] ; then
-        $wget_cmd -O - https://api.github.com/repos/particl/particl-core/releases | jq -r .[$LVCOUNTER] | jq .body > "${DOWNLOAD_FILE}.DIGESTS2.txt"
-        SHA256DLPASS=$( grep -c "$SHA256SUM" "${DOWNLOAD_FILE}.DIGESTS2.txt" )
+        $wget_cmd -O - https://api.github.com/repos/Capricoinofficial/capricoinplus-core/releases | jq -r .[$LVCOUNTER] | jq .body > "${DOWNLOAD_FILE}.DIGESTS2.txt"
+        SHA256DLPASS=$( grep "$SHA256SUM" "${DOWNLOAD_FILE}.DIGESTS2.txt" )
         if [ "$SHA256DLPASS" -lt 1 ] ; then
             echo -e " ${C_RED} SHA256 ${messages["checksum"]} ${messages["FAILED"]} ${messages["try_again_later"]} ${messages["exiting"]}$C_NORM"
             exit 1
@@ -487,69 +488,69 @@ install_particld(){
 
     # pummel it --------------------------------------------------------------
 
-    if [ $PARTYD_RUNNING == 1 ]; then
+    if [ $CAPRICOINPLUSD_RUNNING == 1 ]; then
         pending " --> ${messages["stopping"]} partcld. ${messages["please_wait"]}"
-        $PARTY_CLI stop >/dev/null 2>&1
+        $CAPRICOINPLUS_CLI stop >/dev/null 2>&1
         sleep 15
-        killall -9 particld particl-shutoff >/dev/null 2>&1
+        killall -9 capricoinplusd capricoinplus-shutoff >/dev/null 2>&1
         ok "${messages["done"]}"
     fi
 
     # place it ---------------------------------------------------------------
 
-    mv "particl-$LATEST_VERSION/bin/particld" "particld-$LATEST_VERSION"
-    mv "particl-$LATEST_VERSION/bin/particl-cli" "particl-cli-$LATEST_VERSION"
+    mv "capricoinplus-$LATEST_VERSION/bin/capricoinplusd" "capricoinplusd-$LATEST_VERSION"
+    mv "capricoinplus-$LATEST_VERSION/bin/capricoinplus-cli" "capricoinplus-cli-$LATEST_VERSION"
     if [ $ARM != 1 ];then
-        mv "particl-$LATEST_VERSION/bin/particl-qt" "particl-qt-$LATEST_VERSION"
+        mv "capricoinplus-$LATEST_VERSION/bin/capricoinplus-qt" "capricoinplus-qt-$LATEST_VERSION"
     fi
-    ln -s "particld-$LATEST_VERSION" particld
-    ln -s "particl-cli-$LATEST_VERSION" particl-cli
+    ln -s "capricoinplusd-$LATEST_VERSION" capricoinplusd
+    ln -s "capricoinplus-cli-$LATEST_VERSION" capricoinplus-cli
     if [ $ARM != 1 ];then
-        ln -s "particl-qt-$LATEST_VERSION" particl-qt
+        ln -s "capricoinplus-qt-$LATEST_VERSION" capricoinplus-qt
     fi
 
     # permission it ----------------------------------------------------------
 
     if [ -n "$SUDO_USER" ]; then
-        chown -h "$USER":"$USER" {"$DOWNLOAD_FILE","${DOWNLOAD_FILE}.DIGESTS.txt",particl-cli,particld,particl-qt,particl*"$LATEST_VERSION"}
+        chown -h "$USER":"$USER" {"$DOWNLOAD_FILE","${DOWNLOAD_FILE}.DIGESTS.txt",capricoinplus-cli,capricoinplusd,capricoinplus-qt,capricoinplus*"$LATEST_VERSION"}
     fi
 
     # purge it ---------------------------------------------------------------
 
-    rm -rf "particl-$LATEST_VERSION"
+    rm -rf "capricoinplus-$LATEST_VERSION"
 
     # path it ----------------------------------------------------------------
 
     pending " --> adding $INSTALL_DIR PATH to ~/.bash_aliases ... "
     if [ ! -f ~/.bash_aliases ]; then touch ~/.bash_aliases ; fi
-    sed -i.bak -e '/partyman_env/d' ~/.bash_aliases
-    echo "export PATH=$INSTALL_DIR:\$PATH; # partyman_env" >> ~/.bash_aliases
+    sed -i.bak -e '/coldstaking_env/d' ~/.bash_aliases
+    echo "export PATH=$INSTALL_DIR:\$PATH; # coldstaking_env" >> ~/.bash_aliases
     ok "${messages["done"]}"
 
     # autoboot it ------------------------------------------------------------
 
     INIT=$(ps --no-headers -o comm 1)
-    if [ "$INIT" == "systemd" ] && [ "$USER" == "particl" ] && [ -n "$SUDO_USER" ]; then
+    if [ "$INIT" == "systemd" ] && [ "$USER" == "capricoinplus" ] && [ -n "$SUDO_USER" ]; then
         pending " --> detecting $INIT for auto boot ($USER) ... "
         ok "${messages["done"]}"
-        DOWNLOAD_SERVICE="https://raw.githubusercontent.com/particl/particl-core/master/contrib/init/particld.service"
+        DOWNLOAD_SERVICE="https://raw.githubusercontent.com/Capricoinofficial/capricoinplus-core/master/contrib/init/capricoinplusd.service"
         pending " --> [systemd] ${messages["downloading"]} ${DOWNLOAD_SERVICE}... "
-        $wget_cmd -O - $DOWNLOAD_SERVICE | pv -trep -w80 -N service > particld.service
-        if [ ! -e particld.service ] ; then
+        $wget_cmd -O - $DOWNLOAD_SERVICE | pv -trep -w80 -N service > capricoinplusd.service
+        if [ ! -e capricoinplusd.service ] ; then
            echo -e "${C_RED}error ${messages["downloading"]} file"
-           echo -e "tried to get particld.service$C_NORM"
+           echo -e "tried to get capricoinplusd.service$C_NORM"
         else
            ok "${messages["done"]}"
         pending " --> [systemd] installing service ... "
-        if sudo cp -rf particld.service /etc/systemd/system/; then
+        if sudo cp -rf capricoinplusd.service /etc/systemd/system/; then
             ok "${messages["done"]}"
         fi
            pending " --> [systemd] reloading systemd service ... "
         if sudo systemctl daemon-reload; then
             ok "${messages["done"]}"
         fi
-           pending " --> [systemd] enable particld system startup ... "
-        if sudo systemctl enable particld; then
+           pending " --> [systemd] enable capricoinplusd system startup ... "
+        if sudo systemctl enable capricoinplusd; then
                ok "${messages["done"]}"
            fi
         fi
@@ -560,37 +561,39 @@ install_particld(){
     _get_versions
 
     # pass or punt -----------------------------------------------------------
+    echo "latest version: $LATEST_VERSION"
+    echo "current version: $CURRENT_VERSION"
 
     if [ "$LATEST_VERSION" == "$CURRENT_VERSION" ]; then
         echo -e ""
-        echo -e "${C_GREEN}Particl ${LATEST_VERSION} ${messages["successfully_installed"]}$C_NORM"
+        echo -e "${C_GREEN}capricoinplus ${LATEST_VERSION} ${messages["successfully_installed"]}$C_NORM"
 
         echo -e ""
         echo -e "${C_GREEN}${messages["installed_in"]} ${INSTALL_DIR}$C_NORM"
         echo -e ""
-        ls -l --color {"$DOWNLOAD_FILE","${DOWNLOAD_FILE}.DIGESTS.txt",particl-cli,particld,particl-qt,particl*"$LATEST_VERSION"}
+        ls -l --color {"$DOWNLOAD_FILE","${DOWNLOAD_FILE}.DIGESTS.txt",capricoinplus-cli,capricoinplusd,capricoinplus-qt,capricoinplus*"$LATEST_VERSION"}
         echo -e ""
 
         if [ -n "$SUDO_USER" ]; then
             echo -e "${C_GREEN}Symlinked to: ${LINK_TO_SYSTEM_DIR}$C_NORM"
             echo -e ""
-            ls -l --color "$LINK_TO_SYSTEM_DIR"/{particld,particl-cli}
+            ls -l --color "$LINK_TO_SYSTEM_DIR"/{capricoinplusd,capricoinplus-cli}
             echo -e ""
         fi
 
     else
-        echo -e "${C_RED}${messages["particl_version"]} $CURRENT_VERSION ${messages["is_not_uptodate"]} ($LATEST_VERSION) ${messages["exiting"]}$C_NORM"
+        echo -e "${C_RED}${messages["capricoinplus_version"]} $CURRENT_VERSION ${messages["is_not_uptodate"]} ($LATEST_VERSION) ${messages["exiting"]}$C_NORM"
         exit 1
     fi
 }
 
-update_particld(){
+update_capricoinplusd(){
 
     if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ] || [ -n "$REINSTALL" ] ; then
 
         if [ -n "$REINSTALL" ];then
             echo -e ""
-            echo -e "$C_GREEN*** ${messages["particl_version"]} $CURRENT_VERSION is up-to-date. ***$C_NORM"
+            echo -e "$C_GREEN*** ${messages["capricoinplus_version"]} $CURRENT_VERSION is up-to-date. ***$C_NORM"
             echo -e "${messages["latest_version"]} $C_GREEN$LATEST_VERSION$C_NORM"
             echo -e ""
             echo -en
@@ -598,7 +601,7 @@ update_particld(){
             pending "${messages["reinstall_to"]} $INSTALL_DIR$C_NORM?"
         else
             echo -e ""
-            echo -e "$C_RED*** ${messages["newer_particl_available"]} ***$C_NORM"
+            echo -e "$C_RED*** ${messages["newer_capricoinplus_available"]} ***$C_NORM"
             echo -e ""
             echo -e "${messages["currnt_version"]} $C_RED$CURRENT_VERSION$C_NORM"
             echo -e "${messages["latest_version"]} $C_GREEN$LATEST_VERSION$C_NORM"
@@ -629,7 +632,7 @@ update_particld(){
         tput sc
         echo -e "$C_CYAN"
         $wget_cmd -O - "$DOWNLOAD_URL" | pv -trep -s27M -w80 -N wallet > "$DOWNLOAD_FILE"
-        $wget_cmd -O - "https://raw.githubusercontent.com/particl/gitian.sigs/master/$LATEST_VERSION.0-linux/tecnovert/particl-linux-$LATEST_VERSION-build.assert" | pv -trep -w80 -N checksums > "${DOWNLOAD_FILE}.DIGESTS.txt"
+        $wget_cmd -O - "https://raw.githubusercontent.com/Capricoinofficial/gitian.sigs/master/$LATEST_VERSION.0-linux/CapricoinPlus/capricoinplus-linux-$LATEST_VERSION-build.assert" | pv -trep -w80 -N checksums > "${DOWNLOAD_FILE}.DIGESTS.txt"
         echo -ne "$C_NORM"
         clear_n_lines 2
         tput rc
@@ -646,10 +649,10 @@ update_particld(){
 
         pending " --> ${messages["checksumming"]} ${DOWNLOAD_FILE}... "
         SHA256SUM=$( sha256sum "$DOWNLOAD_FILE" )
-        SHA256PASS=$( grep -c "$SHA256SUM" "${DOWNLOAD_FILE}.DIGESTS.txt" )
+        SHA256PASS=$( grep "$SHA256SUM" "${DOWNLOAD_FILE}.DIGESTS.txt" )
         if [ "$SHA256PASS" -lt 1 ] ; then
-            $wget_cmd -O - https://api.github.com/repos/particl/particl-core/releases | jq -r .[$LVCOUNTER] | jq .body > "${DOWNLOAD_FILE}.DIGESTS2.txt"
-            SHA256DLPASS=$( grep -c "$SHA256SUM" "${DOWNLOAD_FILE}.DIGESTS2.txt")
+            $wget_cmd -O - https://api.github.com/repos/Capricoinofficial/capricoinplus-core/releases | jq -r .[$LVCOUNTER] | jq .body > "${DOWNLOAD_FILE}.DIGESTS2.txt"
+            SHA256DLPASS=$( grep "$SHA256SUM" "${DOWNLOAD_FILE}.DIGESTS2.txt")
             if [ "$SHA256DLPASS" -lt 1 ] ; then
                 echo -e " ${C_RED} SHA256 ${messages["checksum"]} ${messages["FAILED"]} ${messages["try_again_later"]} ${messages["exiting"]}$C_NORM"
                 exit 1
@@ -665,11 +668,11 @@ update_particld(){
 
         # pummel it --------------------------------------------------------------
 
-        if [ $PARTYD_RUNNING == 1 ]; then
+        if [ $CAPRICOINPLUSD_RUNNING == 1 ]; then
             pending " --> ${messages["stopping"]} partcld. ${messages["please_wait"]}"
-            $PARTY_CLI stop >/dev/null 2>&1
+            $CAPRICOINPLUS_CLI stop >/dev/null 2>&1
             sleep 15
-            killall -9 particld particl-shutoff >/dev/null 2>&1
+            killall -9 capricoinplusd capricoinplus-shutoff >/dev/null 2>&1
             ok "${messages["done"]}"
         fi
 
@@ -677,12 +680,12 @@ update_particld(){
 
         pending " --> ${messages["removing_old_version"]}"
         rm -rf \
-            particld \
-            "particld-$CURRENT_VERSION" \
-            particl-qt \
-            "particl-qt-$CURRENT_VERSION" \
-            particl-cli \
-            "particl-cli-$CURRENT_VERSION"
+            capricoinplusd \
+            "capricoinplusd-$CURRENT_VERSION" \
+            capricoinplus-qt \
+            "capricoinplus-qt-$CURRENT_VERSION" \
+            capricoinplus-cli \
+            "capricoinplus-cli-$CURRENT_VERSION"
         #rm -rf \
         #    "$DATA_DIR"/banlist.dat \
         #    "$DATA_DIR"/peers.dat
@@ -690,45 +693,45 @@ update_particld(){
 
         # place it ---------------------------------------------------------------
 
-        mv "particl-$LATEST_VERSION/bin/particld" "particld-$LATEST_VERSION"
-        mv "particl-$LATEST_VERSION/bin/particl-cli" "particl-cli-$LATEST_VERSION"
+        mv "capricoinplus-$LATEST_VERSION/bin/capricoinplusd" "capricoinplusd-$LATEST_VERSION"
+        mv "capricoinplus-$LATEST_VERSION/bin/capricoinplus-cli" "capricoinplus-cli-$LATEST_VERSION"
         if [ $ARM != 1 ];then
-            mv "particl-$LATEST_VERSION/bin/particl-qt" "particl-qt-$LATEST_VERSION"
+            mv "capricoinplus-$LATEST_VERSION/bin/capricoinplus-qt" "capricoinplus-qt-$LATEST_VERSION"
         fi
-        ln -s "particld-$LATEST_VERSION" particld
-        ln -s "particl-cli-$LATEST_VERSION" particl-cli
+        ln -s "capricoinplusd-$LATEST_VERSION" capricoinplusd
+        ln -s "capricoinplus-cli-$LATEST_VERSION" capricoinplus-cli
         if [ $ARM != 1 ];then
-            ln -s "particl-qt-$LATEST_VERSION" particl-qt
+            ln -s "capricoinplus-qt-$LATEST_VERSION" capricoinplus-qt
         fi
 
         # permission it ----------------------------------------------------------
 
         if [ -n "$SUDO_USER" ]; then
-            chown -h "$USER":"$USER" {"$DOWNLOAD_FILE","${DOWNLOAD_FILE}.DIGESTS.txt",particl-cli,particld,particl-qt,particl*"$LATEST_VERSION"}
+            chown -h "$USER":"$USER" {"$DOWNLOAD_FILE","${DOWNLOAD_FILE}.DIGESTS.txt",capricoinplus-cli,capricoinplusd,capricoinplus-qt,capricoinplus*"$LATEST_VERSION"}
         fi
 
         # purge it ---------------------------------------------------------------
 
-        rm -rf "particl-${LATEST_VERSION}"
+        rm -rf "capricoinplus-${LATEST_VERSION}"
 
         # punch it ---------------------------------------------------------------
 
-        pending " --> ${messages["launching"]} particld... "
-        "$INSTALL_DIR/particld" -daemon > /dev/null 2>&1
+        pending " --> ${messages["launching"]} capricoinplusd... "
+        "$INSTALL_DIR/capricoinplusd" -daemon > /dev/null 2>&1
         ok "${messages["done"]}"
 
         # probe it ---------------------------------------------------------------
 
-        pending " --> ${messages["waiting_for_particld_to_respond"]}"
+        pending " --> ${messages["waiting_for_capricoinplusd_to_respond"]}"
         echo -en "${C_YELLOW}"
-        PARTYD_RUNNING=1
-        while [ $PARTYD_RUNNING == 1 ] && [ $PARTYD_RESPONDING == 0 ]; do
+        CAPRICOINPLUSD_RUNNING=1
+        while [ $CAPRICOINPLUSD_RUNNING == 1 ] && [ $CAPRICOINPLUSD_RESPONDING == 0 ]; do
             echo -n "."
-            _check_particld_state
+            _check_capricoinplusd_state
             sleep 5
         done
-        if [ $PARTYD_RUNNING == 0 ]; then
-            die "\n - particld unexpectedly quit. ${messages["exiting"]}"
+        if [ $CAPRICOINPLUSD_RUNNING == 0 ]; then
+            die "\n - capricoinplusd unexpectedly quit. ${messages["exiting"]}"
         fi
         ok "${messages["done"]}"
 
@@ -745,34 +748,34 @@ update_particld(){
             echo -e ""
             echo -e "${C_GREEN}${messages["installed_in"]} ${INSTALL_DIR}$C_NORM"
             echo -e ""
-            ls -l --color {"$DOWNLOAD_FILE","${DOWNLOAD_FILE}.DIGESTS.txt",particl-cli,particld,particl-qt,particl*"$LATEST_VERSION"}
+            ls -l --color {"$DOWNLOAD_FILE","${DOWNLOAD_FILE}.DIGESTS.txt",capricoinplus-cli,capricoinplusd,capricoinplus-qt,capricoinplus*"$LATEST_VERSION"}
             echo -e ""
 
             quit ""
         else
-            echo -e "${C_RED}${messages["particl_version"]} $CURRENT_VERSION ${messages["is_not_uptodate"]} ($LATEST_VERSION) ${messages["exiting"]}$C_NORM"
+            echo -e "${C_RED}${messages["capricoinplus_version"]} $CURRENT_VERSION ${messages["is_not_uptodate"]} ($LATEST_VERSION) ${messages["exiting"]}$C_NORM"
         fi
     else
         echo -e ""
-        echo -e "${C_GREEN}${messages["particl_version"]} $CURRENT_VERSION ${messages["is_uptodate"]} ($LATEST_VERSION) ${messages["exiting"]}$C_NORM"
+        echo -e "${C_GREEN}${messages["capricoinplus_version"]} $CURRENT_VERSION ${messages["is_uptodate"]} ($LATEST_VERSION) ${messages["exiting"]}$C_NORM"
     fi
     exit 0
 }
 
 stakingnode_walletinit(){
 
-    echo "$PARTYD_WALLET"
-    if [ $PARTYD_RUNNING == 1 ] && [ "$PARTYD_WALLETSTATUS" != "Locked" ]; then
+    echo "$CAPRICOINPLUSD_WALLET"
+    if [ $CAPRICOINPLUSD_RUNNING == 1 ] && [ "$CAPRICOINPLUSD_WALLETSTATUS" != "Locked" ]; then
         pending " --> ${messages["stakingnode_init_walletcheck"]}"
-        if [ ! "$PARTYD_WALLET"  == "null" ]; then
-            die "\n - wallet already exists - 'partyman stakingnode' to view list of current staking node public keys or 'partyman stakingnode new' to create a new staking node public key. ${messages["exiting"]}"
+        if [ ! "$CAPRICOINPLUSD_WALLET"  == "null" ]; then
+            die "\n - wallet already exists - 'coldstaking stakingnode' to view list of current staking node public keys or 'coldstaking stakingnode new' to create a new staking node public key. ${messages["exiting"]}"
         else
             ok "${messages["done"]}"
         fi
 
         echo
         pending " --> ${messages["stakingnode_init_walletgenerate"]}"
-        MNEMONIC=$( $PARTY_CLI mnemonic new | grep mnemonic | cut -f2 -d":" | sed 's/\ "//g' | sed 's/\",//g' )
+        MNEMONIC=$( $CAPRICOINPLUS_CLI mnemonic new | grep mnemonic | cut -f2 -d":" | sed 's/\ "//g' | sed 's/\",//g' )
         MNEMONIC_COUNT=$(echo "$MNEMONIC" | wc -w)
         if [ "$MNEMONIC_COUNT" == 24 ]; then
             highlight "$MNEMONIC"
@@ -789,7 +792,7 @@ stakingnode_walletinit(){
         fi
 
         pending " --> ${messages["stakingnode_init_walletcreate"]}"
-        if $PARTY_CLI extkeyimportmaster "$MNEMONIC" >/dev/null 2>&1; then
+        if $CAPRICOINPLUS_CLI extkeyimportmaster "$MNEMONIC" >/dev/null 2>&1; then
             ok "${messages["done"]}"
         else
             die "\n - failed to create new wallet ${messages["exiting"]}"
@@ -799,21 +802,21 @@ stakingnode_walletinit(){
     fi
 
     echo
-    echo -e "    ${C_YELLOW}partyman stakingnode info$C_NORM"
+    echo -e "    ${C_YELLOW}coldstaking stakingnode info$C_NORM"
     echo
 
 }
 
 stakingnode_newpublickey(){
 
-    if [ $PARTYD_RUNNING == 1 ] && [ "$PARTYD_WALLETSTATUS" != "Locked" ]; then
+    if [ $CAPRICOINPLUSD_RUNNING == 1 ] && [ "$CAPRICOINPLUSD_WALLETSTATUS" != "Locked" ]; then
         pending " --> ${messages["stakingnode_init_walletcheck"]}"
-        if [ ! "$PARTYD_WALLET"  == "null" ]; then
+        if [ ! "$CAPRICOINPLUSD_WALLET"  == "null" ]; then
             ok "${messages["done"]}"
         else
-            die "\n - no wallet exists, please type 'partyman stakingnode init' ${messages["exiting"]}"
+            die "\n - no wallet exists, please type 'coldstaking stakingnode init' ${messages["exiting"]}"
         fi
-        if [ "$PARTYD_TBALANCE" -gt 0 ]; then
+        if [ "$CAPRICOINPLUSD_TBALANCE" -gt 0 ]; then
             die "\n - WOAH holdup! you cannot setup coldstaking on a hotstaking wallet! ${messages["exiting"]}"
         fi
 
@@ -831,7 +834,7 @@ stakingnode_newpublickey(){
 
         echo
         pending " --> ${messages["stakingnode_new_publickey"]}"
-        if $PARTY_CLI getnewextaddress "stakingnode_$pubkeylabel"; then
+        if $CAPRICOINPLUS_CLI getnewextaddress "stakingnode_$pubkeylabel"; then
             ok ""
         else
             die "\n - error creating new staking node public key! ' ${messages["exiting"]}"
@@ -845,20 +848,20 @@ stakingnode_newpublickey(){
 
 stakingnode_rewardaddress(){
 
-    if [ $PARTYD_RUNNING == 1 ] && [ "$PARTYD_WALLETSTATUS" != "Locked" ]; then
+    if [ $CAPRICOINPLUSD_RUNNING == 1 ] && [ "$CAPRICOINPLUSD_WALLETSTATUS" != "Locked" ]; then
         pending " --> ${messages["stakingnode_init_walletcheck"]}"
-        if [ ! "$PARTYD_WALLET"  == "null" ]; then
+        if [ ! "$CAPRICOINPLUSD_WALLET"  == "null" ]; then
             ok "${messages["done"]}"
         else
-            die "\n - no wallet exists, please type 'partyman stakingnode init' ${messages["exiting"]}"
+            die "\n - no wallet exists, please type 'coldstaking stakingnode init' ${messages["exiting"]}"
         fi
-        if [ "$PARTYD_TBALANCE" -gt 0 ]; then
+        if [ "$CAPRICOINPLUSD_TBALANCE" -gt 0 ]; then
             die "\n -  WOAH holdup! you cannot setup coldstaking on a hotstaking wallet! ${messages["exiting"]}"
         fi
         echo
 
         pending " --> ${messages["stakingnode_reward_check"]}"
-        STAKE_OPTS=$($PARTY_CLI walletsettings stakingoptions | jq .stakingoptions)
+        STAKE_OPTS=$($CAPRICOINPLUS_CLI walletsettings stakingoptions | jq .stakingoptions)
         if [ "$STAKE_OPTS" == "\"default\"" ]; then
             STAKE_OPTS="{}"
         fi
@@ -884,7 +887,7 @@ stakingnode_rewardaddress(){
             exit 0
         fi
 
-        pending "Particl Address to send all rewards to : "
+        pending "capricoinplus Address to send all rewards to : "
         read -r rewardAddress
 
         echo
@@ -899,7 +902,7 @@ stakingnode_rewardaddress(){
         fi
 
         echo
-        if "$PARTY_CLI" walletsettings stakingoptions "$STAKE_OPTS"; then
+        if "$CAPRICOINPLUS_CLI" walletsettings stakingoptions "$STAKE_OPTS"; then
             ok ""
         else
             die "\n - error setting the reward address! ' ${messages["exiting"]}"
@@ -913,20 +916,20 @@ stakingnode_rewardaddress(){
 
 stakingnode_smsgfeeratetarget(){
 
-    if [ $PARTYD_RUNNING == 1 ] && [ "$PARTYD_WALLETSTATUS" != "Locked" ]; then
+    if [ $CAPRICOINPLUSD_RUNNING == 1 ] && [ "$CAPRICOINPLUSD_WALLETSTATUS" != "Locked" ]; then
         pending " --> ${messages["stakingnode_init_walletcheck"]}"
-        if [ ! "$PARTYD_WALLET"  == "null" ]; then
+        if [ ! "$CAPRICOINPLUSD_WALLET"  == "null" ]; then
             ok "${messages["done"]}"
         else
-            die "\n - no wallet exists, please type 'partyman stakingnode init' ${messages["exiting"]}"
+            die "\n - no wallet exists, please type 'coldstaking stakingnode init' ${messages["exiting"]}"
         fi
-        if [ "$PARTYD_TBALANCE" -gt 0 ]; then
+        if [ "$CAPRICOINPLUSD_TBALANCE" -gt 0 ]; then
             die "\n -  WOAH holdup! you cannot setup coldstaking on a hotstaking wallet! ${messages["exiting"]}"
         fi
         echo
 
         pending " --> ${messages["stakingnode_smsgfeerate_check"]}"
-        STAKE_OPTS=$($PARTY_CLI walletsettings stakingoptions | jq .stakingoptions)
+        STAKE_OPTS=$($CAPRICOINPLUS_CLI walletsettings stakingoptions | jq .stakingoptions)
         if [ "$STAKE_OPTS" == "\"default\"" ]; then
             STAKE_OPTS="{}"
         fi
@@ -953,7 +956,7 @@ stakingnode_smsgfeeratetarget(){
         fi
 
         echo ""
-        pending "** partyman recommends a smsg fee rate of : "
+        pending "** coldstaking recommends a smsg fee rate of : "
         highlight "0.00020000"
         echo ""
         pending "Amount to adjust the smsg fee rate towards : "
@@ -971,7 +974,7 @@ stakingnode_smsgfeeratetarget(){
         fi
 
         echo
-        if "$PARTY_CLI" walletsettings stakingoptions "$STAKE_OPTS"; then
+        if "$CAPRICOINPLUS_CLI" walletsettings stakingoptions "$STAKE_OPTS"; then
             ok ""
         else
             die "\n - error setting the smsg fee rate target! ' ${messages["exiting"]}"
@@ -986,21 +989,21 @@ stakingnode_smsgfeeratetarget(){
 stakingnode_info(){
     _check_qrcode
 
-    if [ $PARTYD_RUNNING == 1 ] && [ "$PARTYD_WALLETSTATUS" != "Locked" ]; then
+    if [ $CAPRICOINPLUSD_RUNNING == 1 ] && [ "$CAPRICOINPLUSD_WALLETSTATUS" != "Locked" ]; then
         pending " --> ${messages["stakingnode_init_walletcheck"]}"
-        if [ ! "$PARTYD_WALLET"  == "null" ]; then
+        if [ ! "$CAPRICOINPLUSD_WALLET"  == "null" ]; then
             ok "${messages["done"]}"
         else
-            die "\n - no wallet exists, please type 'partyman stakingnode init' ${messages["exiting"]}"
+            die "\n - no wallet exists, please type 'coldstaking stakingnode init' ${messages["exiting"]}"
         fi
 
-        ACCOUNTID=$( $PARTY_CLI extkey account | grep "\"id"\" | cut -f2 -d":" | sed 's/\ "//g' | sed 's/\",//g' )
+        ACCOUNTID=$( $CAPRICOINPLUS_CLI extkey account | grep "\"id"\" | cut -f2 -d":" | sed 's/\ "//g' | sed 's/\",//g' )
 
         echo
         FOUNDSTAKINGNODEKEY=0
         for ID in $ACCOUNTID;
         do
-            IDINFO=$($PARTY_CLI extkey key "$ID" true 2>&-)
+            IDINFO=$($CAPRICOINPLUS_CLI extkey key "$ID" true 2>&-)
             IDINFO_LABEL=$( echo "$IDINFO" | jq -r .label)
             if echo "$IDINFO_LABEL" | grep -q "stakingnode"; then
                 IDINFO_PUBKEY=$( echo "$IDINFO" | jq -r .epkey)
@@ -1017,7 +1020,7 @@ stakingnode_info(){
         done
 
         if [ $FOUNDSTAKINGNODEKEY == 0 ] || [ -z $FOUNDSTAKINGNODEKEY ]; then
-            die " - no staking node public keys found, please type 'partyman stakingnode new' to create one. ${messages["exiting"]}"
+            die " - no staking node public keys found, please type 'coldstaking stakingnode new' to create one. ${messages["exiting"]}"
         fi
     else
         die "\n - wallet is locked! Please unlock first. ${messages["exiting"]}"
@@ -1049,12 +1052,12 @@ _check_qrcode() {
 
 stakingnode_stats(){
 
-    if [ $PARTYD_RUNNING == 1 ] && [ "$PARTYD_WALLETSTATUS" != "Locked" ]; then
+    if [ $CAPRICOINPLUSD_RUNNING == 1 ] && [ "$CAPRICOINPLUSD_WALLETSTATUS" != "Locked" ]; then
         pending " --> ${messages["stakingnode_init_walletcheck"]}"
-        if [ ! "$PARTYD_WALLET"  == "null" ]; then
+        if [ ! "$CAPRICOINPLUSD_WALLET"  == "null" ]; then
             ok "${messages["done"]}"
         else
-            die "\n - no wallet exists, please type 'partyman stakingnode init' ${messages["exiting"]}"
+            die "\n - no wallet exists, please type 'coldstaking stakingnode init' ${messages["exiting"]}"
         fi
         if [ ! "$LATEST_VERSION" == "$CURRENT_VERSION" ]; then
             die "\n - please upgrade to the latest version! ${messages["exiting"]}"
@@ -1073,8 +1076,8 @@ stakingnode_stats(){
         "${messages["stakingnode_stats_indent"]}" "DAY" "# STAKES" "TOTAL STAKED"
 
         until [ $COUNTER -gt "$DAY" ]; do
-            NUMBER_OF_STAKES=$( $PARTY_CLI filtertransactions "{\"from\":\"$YEAR-$MONTH-$COUNTER\", \"to\":\"$YEAR-$MONTH-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.records)
-            STAKE_AMOUNT=$( $PARTY_CLI filtertransactions "{\"from\":\"$YEAR-$MONTH-$COUNTER\", \"to\":\"$YEAR-$MONTH-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.total_reward)
+            NUMBER_OF_STAKES=$( $CAPRICOINPLUS_CLI filtertransactions "{\"from\":\"$YEAR-$MONTH-$COUNTER\", \"to\":\"$YEAR-$MONTH-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.records)
+            STAKE_AMOUNT=$( $CAPRICOINPLUS_CLI filtertransactions "{\"from\":\"$YEAR-$MONTH-$COUNTER\", \"to\":\"$YEAR-$MONTH-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.total_reward)
 
             printf '%-4s %-15s %-30s %-12s\n' \
             "${messages["stakingnode_stats_indent"]}" "$COUNTER" "$NUMBER_OF_STAKES" "$STAKE_AMOUNT"
@@ -1090,8 +1093,8 @@ stakingnode_stats(){
 
         COUNTER=12
         until [ $COUNTER == 0 ]; do
-            NUMBER_OF_STAKES=$( $PARTY_CLI filtertransactions "{\"from\":\"$YEAR-$COUNTER\", \"to\":\"$YEAR-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.records)
-            STAKE_AMOUNT=$( $PARTY_CLI filtertransactions "{\"from\":\"$YEAR-$COUNTER\", \"to\":\"$YEAR-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.total_reward)
+            NUMBER_OF_STAKES=$( $CAPRICOINPLUS_CLI filtertransactions "{\"from\":\"$YEAR-$COUNTER\", \"to\":\"$YEAR-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.records)
+            STAKE_AMOUNT=$( $CAPRICOINPLUS_CLI filtertransactions "{\"from\":\"$YEAR-$COUNTER\", \"to\":\"$YEAR-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.total_reward)
             if [[ $NUMBER_OF_STAKES != 0 ]] && [[ $STAKE_AMOUNT != 0 ]]; then
                 printf '%-4s %-15s %-30s %-12s\n' \
                 "${messages["stakingnode_stats_indent"]}" "$COUNTER ($YEAR)" "$NUMBER_OF_STAKES" "$STAKE_AMOUNT"
@@ -1103,8 +1106,8 @@ stakingnode_stats(){
         COUNTER=12
         YEAR=2018
         until [ $COUNTER == 0 ]; do
-            NUMBER_OF_STAKES=$( $PARTY_CLI filtertransactions "{\"from\":\"$YEAR-$COUNTER\", \"to\":\"$YEAR-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.records)
-            STAKE_AMOUNT=$( $PARTY_CLI filtertransactions "{\"from\":\"$YEAR-$COUNTER\", \"to\":\"$YEAR-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.total_reward)
+            NUMBER_OF_STAKES=$( $CAPRICOINPLUS_CLI filtertransactions "{\"from\":\"$YEAR-$COUNTER\", \"to\":\"$YEAR-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.records)
+            STAKE_AMOUNT=$( $CAPRICOINPLUS_CLI filtertransactions "{\"from\":\"$YEAR-$COUNTER\", \"to\":\"$YEAR-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.total_reward)
             if [[ $NUMBER_OF_STAKES != 0 ]] && [[ $STAKE_AMOUNT != 0 ]]; then
                 printf '%-4s %-15s %-30s %-12s\n' \
                 "${messages["stakingnode_stats_indent"]}" "$COUNTER ($YEAR)" "$NUMBER_OF_STAKES" "$STAKE_AMOUNT"
@@ -1116,8 +1119,8 @@ stakingnode_stats(){
         COUNTER=12
         YEAR=2017
         until [ $COUNTER == 0 ]; do
-            NUMBER_OF_STAKES=$( $PARTY_CLI filtertransactions "{\"from\":\"$YEAR-$COUNTER\", \"to\":\"$YEAR-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.records)
-            STAKE_AMOUNT=$( $PARTY_CLI filtertransactions "{\"from\":\"$YEAR-$COUNTER\", \"to\":\"$YEAR-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.total_reward)
+            NUMBER_OF_STAKES=$( $CAPRICOINPLUS_CLI filtertransactions "{\"from\":\"$YEAR-$COUNTER\", \"to\":\"$YEAR-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.records)
+            STAKE_AMOUNT=$( $CAPRICOINPLUS_CLI filtertransactions "{\"from\":\"$YEAR-$COUNTER\", \"to\":\"$YEAR-$COUNTER\",\"count\":100000,\"category\":\"stake\",\"collate\":true,\"include_watchonly\":true,\"with_reward\":true}" | jq .collated.total_reward)
             if [[ $NUMBER_OF_STAKES != 0 ]] && [[ $STAKE_AMOUNT != 0 ]]; then
                 printf '%-4s %-15s %-30s %-12s\n' \
                 "${messages["stakingnode_stats_indent"]}" "$COUNTER ($YEAR)" "$NUMBER_OF_STAKES" "$STAKE_AMOUNT"
@@ -1152,13 +1155,13 @@ configure_firewall(){
         if [ -z "$SSH_PORT" ] ; then SSH_PORT=22 ; fi
 
         # creates a minimal set of firewall rules that allows INBOUND masternode p2p & SSH ports */
-        # disallow everything except ssh, 8080 (webserver) and inbound ports 51738 and 51938
+        # disallow everything except ssh, 8080 (webserver) and inbound ports 11111 and 12111
         $FIREWALL_CLI default deny
         $FIREWALL_CLI logging on
         $FIREWALL_CLI allow $SSH_PORT/tcp
-        $FIREWALL_CLI allow 8080/tcp comment 'partyman webserver'
-        $FIREWALL_CLI allow 51738/tcp comment 'particl p2p mainnet'
-        $FIREWALL_CLI allow 51938/tcp comment 'particl p2p testnet'
+        $FIREWALL_CLI allow 8080/tcp comment 'coldstaking webserver'
+        $FIREWALL_CLI allow 11111/tcp comment 'capricoinplus p2p mainnet'
+        $FIREWALL_CLI allow 12111/tcp comment 'capricoinplus p2p testnet'
 
         # This will only allow 6 connections every 30 seconds from the same IP address.
         $FIREWALL_CLI limit OpenSSH
@@ -1194,90 +1197,91 @@ firewall_reset(){
     fi
 }
 
-_get_particld_proc_status(){
-    PARTYD_HASPID=0
-    if [ -e "$INSTALL_DIR/particl.pid" ] ; then
-        PARTYD_HASPID=$(ps --no-header "$(cat "$INSTALL_DIR/particl.pid" 2>/dev/null)" | wc -l);
+_get_capricoinplusd_proc_status(){
+    CAPRICOINPLUSD_HASPID=0
+    if [ -e "$INSTALL_DIR/capricoinplus.pid" ] ; then
+        CAPRICOINPLUSD_HASPID=$(ps --no-header "$(cat "$INSTALL_DIR/capricoinplus.pid" 2>/dev/null)" | wc -l);
     else
-        if ! PARTYD_HASPID=$(pidof "$INSTALL_DIR/particld"); then
-            PARTYD_HASPID=0
+        if ! CAPRICOINPLUSD_HASPID=$(pidof "$INSTALL_DIR/capricoinplusd"); then
+            CAPRICOINPLUSD_HASPID=0
         fi
     fi
-    PARTYD_PID=$(pidof "$INSTALL_DIR/particld")
+    CAPRICOINPLUSD_PID=$(pidof "$INSTALL_DIR/capricoinplusd")
 }
 
-get_particld_status(){
+get_capricoinplusd_status(){
 
-    _get_particld_proc_status
+    _get_capricoinplusd_proc_status
 
-    PARTYD_UPTIME=$($PARTY_CLI uptime 2>/dev/null)
-    if [ -z "$PARTYD_UPTIME" ] ; then PARTYD_UPTIME=0 ; fi
+    CAPRICOINPLUSD_UPTIME=$($CAPRICOINPLUS_CLI uptime 2>/dev/null)
+    if [ -z "$CAPRICOINPLUSD_UPTIME" ] ; then CAPRICOINPLUSD_UPTIME=0 ; fi
 
-    PARTYD_LISTENING=$(netstat -nat | grep LIST | grep -c 51738);
-    PARTYD_CONNECTIONS=$(netstat -nat | grep ESTA | grep -c 51738);
-    PARTYD_CURRENT_BLOCK=$("$PARTY_CLI" getblockcount 2>/dev/null)
-    if [ -z "$PARTYD_CURRENT_BLOCK" ] ; then PARTYD_CURRENT_BLOCK=0 ; fi
+    CAPRICOINPLUSD_LISTENING=$(netstat -nat | grep LIST | grep -c 11111);
+    CAPRICOINPLUSD_CONNECTIONS=$(netstat -nat | grep ESTA | grep -c 11111);
+    CAPRICOINPLUSD_CURRENT_BLOCK=$("$CAPRICOINPLUS_CLI" getblockcount 2>/dev/null)
+    if [ -z "$CAPRICOINPLUSD_CURRENT_BLOCK" ] ; then CAPRICOINPLUSD_CURRENT_BLOCK=0 ; fi
 
 
-    WEB_BLOCK_COUNT_CHAINZ=$($curl_cmd https://chainz.cryptoid.info/part/api.dws?q=getblockcount 2>/dev/null | jq -r .);
-    if [ -z "$WEB_BLOCK_COUNT_CHAINZ" ]; then
-        WEB_BLOCK_COUNT_CHAINZ=0
+    # WEB_BLOCK_COUNT_CHAINZ=$($curl_cmd https://chainz.cryptoid.info/capricoinplus/api.dws?q=getblockcount 2>/dev/null | jq -r .);
+    # if [ -z "$WEB_BLOCK_COUNT_CHAINZ" ]; then
+    #     WEB_BLOCK_COUNT_CHAINZ=0
+    # fi
+
+    WEB_BLOCK_COUNT_CPS=$($curl_cmd https://explorer.capricoin.org/api/sync 2>/dev/null | jq -r .blockChainHeight)
+    if [ -z "$WEB_BLOCK_COUNT_CPS" ]; then
+        WEB_BLOCK_COUNT_CPS=0
     fi
 
-    WEB_BLOCK_COUNT_PART=$($curl_cmd https://explorer.particl.io/particl-insight-api/sync 2>/dev/null | jq -r .blockChainHeight)
-    if [ -z "$WEB_BLOCK_COUNT_PART" ]; then
-        WEB_BLOCK_COUNT_PART=0
-    fi
-
-    PARTYD_SYNCED=0
-    if [ $PARTYD_RUNNING == 1 ]; then
-        if [ $PARTYD_CURRENT_BLOCK == $WEB_BLOCK_COUNT_CHAINZ ] || [ $PARTYD_CURRENT_BLOCK == $WEB_BLOCK_COUNT_PART ] || [ $PARTYD_CURRENT_BLOCK -ge $((WEB_BLOCK_COUNT_CHAINZ -5)) ] || [ $PARTYD_CURRENT_BLOCK -ge $((WEB_BLOCK_COUNT_PART -5)) ]; then
-            PARTYD_SYNCED=1
+    CAPRICOINPLUSD_SYNCED=0
+    if [ $CAPRICOINPLUSD_RUNNING == 1 ]; then
+        # if [ $CAPRICOINPLUSD_CURRENT_BLOCK == $WEB_BLOCK_COUNT_CHAINZ ] || [ $CAPRICOINPLUSD_CURRENT_BLOCK == $WEB_BLOCK_COUNT_CPS ] || [ $CAPRICOINPLUSD_CURRENT_BLOCK -ge $((WEB_BLOCK_COUNT_CHAINZ -5)) ] || [ $CAPRICOINPLUSD_CURRENT_BLOCK -ge $((WEB_BLOCK_COUNT_CPS -5)) ]; then
+         if [ $CAPRICOINPLUSD_CURRENT_BLOCK == $WEB_BLOCK_COUNT_CPS ] || [ $CAPRICOINPLUSD_CURRENT_BLOCK -ge $((WEB_BLOCK_COUNT_CPS -5)) ]; then
+            CAPRICOINPLUSD_SYNCED=1
         fi
     fi
 
-    PARTYD_CONNECTED=0
-    if [ "$PARTYD_CONNECTIONS" -gt 0 ]; then PARTYD_CONNECTED=1 ; fi
+    CAPRICOINPLUSD_CONNECTED=0
+    if [ "$CAPRICOINPLUSD_CONNECTIONS" -gt 0 ]; then CAPRICOINPLUSD_CONNECTED=1 ; fi
 
-    PARTYD_UP_TO_DATE=0
+    CAPRICOINPLUSD_UP_TO_DATE=0
     if [ -z "$LATEST_VERSION" ]; then
-        PARTYD_UP_TO_DATE_STATUS="UNKNOWN"
+        CAPRICOINPLUSD_UP_TO_DATE_STATUS="UNKNOWN"
     else
-        PARTYD_UP_TO_DATE_STATUS="NO"
+        CAPRICOINPLUSD_UP_TO_DATE_STATUS="NO"
         if [ "$LATEST_VERSION" == "$CURRENT_VERSION" ]; then
-            PARTYD_UP_TO_DATE=1
+            CAPRICOINPLUSD_UP_TO_DATE=1
         fi
     fi
 
     get_public_ips
 
-    PUBLIC_PORT_CLOSED=$( timeout 2 nc -4 -z "$PUBLIC_IPV4" 51738 > /dev/null 2>&1; echo $? )
+    PUBLIC_PORT_CLOSED=$( timeout 2 nc -4 -z "$PUBLIC_IPV4" 11111 > /dev/null 2>&1; echo $? )
 
     #staking info
-    if [ $PARTYD_RUNNING == 1 ]; then
-        PARTYD_GETSTAKINGINFO=$($PARTY_CLI getstakinginfo 2>/dev/null);
-        STAKING_ENABLED=$(echo "$PARTYD_GETSTAKINGINFO" | grep enabled | awk '{print $2}' | sed -e 's/[",]//g')
+    if [ $CAPRICOINPLUSD_RUNNING == 1 ]; then
+        CAPRICOINPLUSD_GETSTAKINGINFO=$($CAPRICOINPLUS_CLI getstakinginfo 2>/dev/null);
+        STAKING_ENABLED=$(echo "$CAPRICOINPLUSD_GETSTAKINGINFO" | grep enabled | awk '{print $2}' | sed -e 's/[",]//g')
         if [ "$STAKING_ENABLED" == "true" ]; then STAKING_ENABLED=1; elif [ $STAKING_ENABLED == "false" ]; then STAKING_ENABLED=0; fi
-        STAKING_CURRENT=$(echo "$PARTYD_GETSTAKINGINFO" | grep staking | awk '{print $2}' | sed -e 's/[",]//g')
+        STAKING_CURRENT=$(echo "$CAPRICOINPLUSD_GETSTAKINGINFO" | grep staking | awk '{print $2}' | sed -e 's/[",]//g')
         if [ "$STAKING_CURRENT" == "true" ]; then STAKING_CURRENT=1; elif [ $STAKING_CURRENT == "false" ]; then STAKING_CURRENT=0; fi
-        STAKING_STATUS=$(echo "$PARTYD_GETSTAKINGINFO" | grep cause | awk '{print $2}' | sed -e 's/[",]//g')
-        STAKING_PERCENTAGE=$(echo "$PARTYD_GETSTAKINGINFO" | grep percentyearreward | awk '{print $2}' | sed -e 's/[",]//g')
-        STAKING_DIFF=$(echo "$PARTYD_GETSTAKINGINFO" | grep difficulty | awk '{print $2}' | sed -e 's/[",]//g')
-        PARTYD_STAKEWEIGHT=$(echo "$PARTYD_GETSTAKINGINFO" | grep "\"weight"\" | awk '{print $2}' | sed -e 's/[",]//g')
-        PARTYD_NETSTAKEWEIGHT=$(echo "$PARTYD_GETSTAKINGINFO" | grep netstakeweight | awk '{print $2}' | sed -e 's/[",]//g')
+        STAKING_STATUS=$(echo "$CAPRICOINPLUSD_GETSTAKINGINFO" | grep cause | awk '{print $2}' | sed -e 's/[",]//g')
+        STAKING_PERCENTAGE=$(echo "$CAPRICOINPLUSD_GETSTAKINGINFO" | grep percentyearreward | awk '{print $2}' | sed -e 's/[",]//g')
+        STAKING_DIFF=$(echo "$CAPRICOINPLUSD_GETSTAKINGINFO" | grep difficulty | awk '{print $2}' | sed -e 's/[",]//g')
+        CAPRICOINPLUSD_STAKEWEIGHT=$(echo "$CAPRICOINPLUSD_GETSTAKINGINFO" | grep "\"weight"\" | awk '{print $2}' | sed -e 's/[",]//g')
+        CAPRICOINPLUSD_NETSTAKEWEIGHT=$(echo "$CAPRICOINPLUSD_GETSTAKINGINFO" | grep netstakeweight | awk '{print $2}' | sed -e 's/[",]//g')
 
-        PARTYD_NETSTAKEWEIGHT=$((PARTYD_NETSTAKEWEIGHT / 100000000))
-        PARTYD_STAKEWEIGHT=$((PARTYD_STAKEWEIGHT / 100000000))
+        CAPRICOINPLUSD_NETSTAKEWEIGHT=$((CAPRICOINPLUSD_NETSTAKEWEIGHT / 100000000))
+        CAPRICOINPLUSD_STAKEWEIGHT=$((CAPRICOINPLUSD_STAKEWEIGHT / 100000000))
 
         #Hack for floating point arithmetic
-        STAKEWEIGHTPERCENTAGE=$( awk "BEGIN {printf \"%.3f%%\", $PARTYD_STAKEWEIGHT/$PARTYD_NETSTAKEWEIGHT*100}" )
-        T_PARTYD_STAKEWEIGHT=$(printf "%'.0f" $PARTYD_STAKEWEIGHT)
-        PARTYD_STAKEWEIGHTLINE="$T_PARTYD_STAKEWEIGHT ($STAKEWEIGHTPERCENTAGE)"
+        STAKEWEIGHTPERCENTAGE=$( awk "BEGIN {printf \"%.3f%%\", $CAPRICOINPLUSD_STAKEWEIGHT/$CAPRICOINPLUSD_NETSTAKEWEIGHT*100}" )
+        T_CAPRICOINPLUSD_STAKEWEIGHT=$(printf "%'.0f" $CAPRICOINPLUSD_STAKEWEIGHT)
+        CAPRICOINPLUSD_STAKEWEIGHTLINE="$T_CAPRICOINPLUSD_STAKEWEIGHT ($STAKEWEIGHTPERCENTAGE)"
 
-        PARTYD_GETCOLDSTAKINGINFO=$($PARTY_CLI getcoldstakinginfo 2>/dev/null);
-        CSTAKING_ENABLED=$(echo "$PARTYD_GETCOLDSTAKINGINFO" | grep enabled | awk '{print $2}' | sed -e 's/[",]//g')
-        CSTAKING_CURRENT=$(echo "$PARTYD_GETCOLDSTAKINGINFO" | grep currently_staking | awk '{print $2}' | sed -e 's/[",]//g')
-        CSTAKING_BALANCE=$(echo "$PARTYD_GETCOLDSTAKINGINFO" | grep coin_in_coldstakeable_script | awk '{print $2}' | sed -e 's/[",]//g')
+        CAPRICOINPLUSD_GETCOLDSTAKINGINFO=$($CAPRICOINPLUS_CLI getcoldstakinginfo 2>/dev/null);
+        CSTAKING_ENABLED=$(echo "$CAPRICOINPLUSD_GETCOLDSTAKINGINFO" | grep enabled | awk '{print $2}' | sed -e 's/[",]//g')
+        CSTAKING_CURRENT=$(echo "$CAPRICOINPLUSD_GETCOLDSTAKINGINFO" | grep currently_staking | awk '{print $2}' | sed -e 's/[",]//g')
+        CSTAKING_BALANCE=$(echo "$CAPRICOINPLUSD_GETCOLDSTAKINGINFO" | grep coin_in_coldstakeable_script | awk '{print $2}' | sed -e 's/[",]//g')
     fi
 }
 
@@ -1339,9 +1343,9 @@ get_host_status(){
 
 print_getinfo() {
 
-    if [ $PARTYD_RUNNING == 1 ]; then
-        $PARTY_CLI -getinfo
-        $PARTY_CLI getwalletinfo
+    if [ $CAPRICOINPLUSD_RUNNING == 1 ]; then
+        $CAPRICOINPLUS_CLI -getinfo
+        $CAPRICOINPLUS_CLI getwalletinfo
     fi
 }
 
@@ -1349,44 +1353,44 @@ print_status() {
 
     pending "${messages["status_hostnam"]}" ; ok "$HOSTNAME"
     pending "${messages["status_uptimeh"]}" ; ok "$HOST_UPTIME_DAYS ${messages["days"]}, $HOST_LOAD_AVERAGE"
-    pending "${messages["status_particldip"]}" ; if [ "$PUBLIC_IPV4" != "none" ] ; then ok "$PUBLIC_IPV4" ; else err "$PUBLIC_IPV4" ; fi
-    pending "${messages["status_particldve"]}" ; ok "$CURRENT_VERSION"
-    pending "${messages["status_uptodat"]}" ; if [ "$PARTYD_UP_TO_DATE"      -gt 0 ] ; then ok "${messages["YES"]}" ; else err "$PARTYD_UP_TO_DATE_STATUS ($LATEST_VERSION)" ; fi
-    pending "${messages["status_running"]}" ; if [ "$PARTYD_HASPID"          -gt 0 ] ; then ok "${messages["YES"]}" ; else err "${messages["NO"]}" ; fi
-    pending "${messages["status_uptimed"]}" ; if [ "$PARTYD_UPTIME"          -gt 0 ] ; then ok "$(displaytime $PARTYD_UPTIME)" ; else err "${messages["NO"]}" ; fi
-    pending "${messages["status_drespon"]}" ; if [ "$PARTYD_RUNNING"         -gt 0 ] ; then ok "${messages["YES"]}" ; else err "${messages["NO"]}" ; fi
-    pending "${messages["status_dlisten"]}" ; if [ "$PARTYD_LISTENING"       -gt 0 ] ; then ok "${messages["YES"]}" ; else err "${messages["NO"]}" ; fi
+    pending "${messages["status_capricoinplusdip"]}" ; if [ "$PUBLIC_IPV4" != "none" ] ; then ok "$PUBLIC_IPV4" ; else err "$PUBLIC_IPV4" ; fi
+    pending "${messages["status_capricoinplusdve"]}" ; ok "$CURRENT_VERSION"
+    pending "${messages["status_uptodat"]}" ; if [ "$CAPRICOINPLUSD_UP_TO_DATE"      -gt 0 ] ; then ok "${messages["YES"]}" ; else err "$CAPRICOINPLUSD_UP_TO_DATE_STATUS ($LATEST_VERSION)" ; fi
+    pending "${messages["status_running"]}" ; if [ "$CAPRICOINPLUSD_HASPID"          -gt 0 ] ; then ok "${messages["YES"]}" ; else err "${messages["NO"]}" ; fi
+    pending "${messages["status_uptimed"]}" ; if [ "$CAPRICOINPLUSD_UPTIME"          -gt 0 ] ; then ok "$(displaytime $CAPRICOINPLUSD_UPTIME)" ; else err "${messages["NO"]}" ; fi
+    pending "${messages["status_drespon"]}" ; if [ "$CAPRICOINPLUSD_RUNNING"         -gt 0 ] ; then ok "${messages["YES"]}" ; else err "${messages["NO"]}" ; fi
+    pending "${messages["status_dlisten"]}" ; if [ "$CAPRICOINPLUSD_LISTENING"       -gt 0 ] ; then ok "${messages["YES"]}" ; else err "${messages["NO"]}" ; fi
     pending "${messages["status_dportop"]}" ; if [ "$PUBLIC_PORT_CLOSED"     -lt 1 ] ; then ok "${messages["YES"]}" ; else highlight "${messages["NO"]}*" ; fi
-    pending "${messages["status_dconnec"]}" ; if [ "$PARTYD_CONNECTED"       -gt 0 ] ; then ok "${messages["YES"]}" ; else err "${messages["NO"]}" ; fi
-    pending "${messages["status_dconcnt"]}" ; if [ "$PARTYD_CONNECTIONS"     -gt 0 ] ; then ok "$PARTYD_CONNECTIONS" ; else err "$PARTYD_CONNECTIONS" ; fi
-    pending "${messages["status_dblsync"]}" ; if [ "$PARTYD_SYNCED"          -gt 0 ] ; then ok "${messages["YES"]}" ; else err "${messages["NO"]}" ; fi
-    pending "${messages["status_dbllast"]}" ; if [ "$PARTYD_SYNCED"          -gt 0 ] ; then ok "$PARTYD_CURRENT_BLOCK" ; else err "$PARTYD_CURRENT_BLOCK" ; fi
-    pending "${messages["status_webpart"]}" ; if [ "$WEB_BLOCK_COUNT_PART"   -gt 0 ] ; then ok "$WEB_BLOCK_COUNT_PART" ; else err "$WEB_BLOCK_COUNT_PART" ; fi
-    pending "${messages["status_webchai"]}" ; if [ "$WEB_BLOCK_COUNT_CHAINZ" -gt 0 ] ; then ok "$WEB_BLOCK_COUNT_CHAINZ" || err "$WEB_BLOCK_COUNT_CHAINZ" ; fi
-    if [ $PARTYD_RUNNING == 1 ]; then
+    pending "${messages["status_dconnec"]}" ; if [ "$CAPRICOINPLUSD_CONNECTED"       -gt 0 ] ; then ok "${messages["YES"]}" ; else err "${messages["NO"]}" ; fi
+    pending "${messages["status_dconcnt"]}" ; if [ "$CAPRICOINPLUSD_CONNECTIONS"     -gt 0 ] ; then ok "$CAPRICOINPLUSD_CONNECTIONS" ; else err "$CAPRICOINPLUSD_CONNECTIONS" ; fi
+    pending "${messages["status_dblsync"]}" ; if [ "$CAPRICOINPLUSD_SYNCED"          -gt 0 ] ; then ok "${messages["YES"]}" ; else err "${messages["NO"]}" ; fi
+    pending "${messages["status_dbllast"]}" ; if [ "$CAPRICOINPLUSD_SYNCED"          -gt 0 ] ; then ok "$CAPRICOINPLUSD_CURRENT_BLOCK" ; else err "$CAPRICOINPLUSD_CURRENT_BLOCK" ; fi
+    pending "${messages["status_webpart"]}" ; if [ "$WEB_BLOCK_COUNT_CPS"   -gt 0 ] ; then ok "$WEB_BLOCK_COUNT_CPS" ; else err "$WEB_BLOCK_COUNT_CPS" ; fi
+    # pending "${messages["status_webchai"]}" ; if [ "$WEB_BLOCK_COUNT_CHAINZ" -gt 0 ] ; then ok "$WEB_BLOCK_COUNT_CHAINZ" || err "$WEB_BLOCK_COUNT_CHAINZ" ; fi
+    if [ $CAPRICOINPLUSD_RUNNING == 1 ]; then
         pending "${messages["breakline"]}" ; ok ""
         pending "${messages["status_stakeen"]}" ; if [ $STAKING_ENABLED -gt 0 ] ; then ok "${messages["YES"]} - $STAKING_PERCENTAGE%" ; else err "${messages["NO"]}" ; fi
         pending "${messages["status_stakedi"]}" ; ok "$(printf "%'.0f" "$STAKING_DIFF")"
-        pending "${messages["status_stakenw"]}" ; ok "$(printf "%'.0f" "$PARTYD_NETSTAKEWEIGHT")"
+        pending "${messages["status_stakenw"]}" ; ok "$(printf "%'.0f" "$CAPRICOINPLUSD_NETSTAKEWEIGHT")"
         pending "${messages["breakline"]}" ; ok ""
         pending "${messages["status_stakecu"]}" ; if [ $STAKING_CURRENT -gt 0 ] ; then ok "${messages["YES"]}" ; else err "${messages["NO"]} - $STAKING_STATUS" ; fi
-        pending "${messages["status_stakeww"]}" ; ok "$PARTYD_STAKEWEIGHTLINE"
+        pending "${messages["status_stakeww"]}" ; ok "$CAPRICOINPLUSD_STAKEWEIGHTLINE"
         pending "${messages["status_stakebl"]}" ; ok "$(printf "%'.0f" "$CSTAKING_BALANCE")"
     fi
 
     if [ "$PUBLIC_PORT_CLOSED"  -gt 0 ]; then
        echo
        highlight "* Inbound P2P Port is not open - this is okay and will not affect the function of this staking node."
-       highlight "  However by opening port 51738/tcp you can provide full resources to the Particl Network by acting as a 'full node'."
+       highlight "  However by opening port 11111/tcp you can provide full resources to the capricoinplus Network by acting as a 'full node'."
        highlight "  A 'full staking node' will increase the number of other nodes you connect to beyond the 16 limit."
     fi
 }
 
 show_message_configure() {
     echo
-    ok "${messages["to_start_particl"]}"
+    ok "${messages["to_start_capricoinplus"]}"
     echo
-    echo -e "    ${C_YELLOW}partyman restart now$C_NORM"
+    echo -e "    ${C_YELLOW}coldstaking restart now$C_NORM"
     echo
 }
 

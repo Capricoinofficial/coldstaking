@@ -3,9 +3,9 @@
 # default hostname
 HOST=0.0.0.0
 # default port number
-PORT=8080
+PORT=3000
 # web base path
-WWWPATH="public_html/"
+WWWPATH="$PWD/public_html"
 # script name
 NAME=${0##*/}
 
@@ -107,7 +107,7 @@ start_server () {
     return 1
   else
     printf "${GREEN}"$NAME" started on $HOST:$PORT${NORMAL}\n"
-    php -S "$HOST":"$PORT" -t "$WWWPATH" router.php >> "$LOGFILE" 2>&1 &
+    php -S "$HOST":"$PORT" -t "$WWWPATH" >> "$LOGFILE" 2>&1 &
     echo "$HOST":"$PORT":$! > $PIDFILE
     return 0
   fi
