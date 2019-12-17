@@ -10,7 +10,7 @@ Capricoin+ wallet/daemon management utilities - version 0.12
 To install coldstaking do:
 
     sudo apt-get install python git unzip pv jq dnsutils
-    cd ~ && git clone https://github.com/dasource/coldstaking
+    cd ~ && git clone https://github.com/Capricoinofficial/coldstaking
 
 To get the current status of capricoinplusd, do:
 
