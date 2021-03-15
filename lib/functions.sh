@@ -252,9 +252,9 @@ _find_capricoinplus_directory() {
 
 
 _check_coldstaking_updates() {
-    GITHUB_COLDSTAKING_VERSION=$( "$curl_cmd" -i https://raw.githubusercontent.com/dasource/coldstaking/master/VERSION 2>/dev/null | head -n 1 | cut -d$' ' -f2 )
+    GITHUB_COLDSTAKING_VERSION=$( "$curl_cmd" -i https://raw.githubusercontent.com/Capricoinofficial/coldstaking/master/VERSION 2>/dev/null | head -n 1 | cut -d$' ' -f2 )
     if [ "$GITHUB_COLDSTAKING_VERSION" == 200 ]; then # check to make sure github is returning the data
-        GITHUB_COLDSTAKING_VERSION=$( $curl_cmd https://raw.githubusercontent.com/dasource/coldstaking/master/VERSION 2>/dev/null )
+        GITHUB_COLDSTAKING_VERSION=$( $curl_cmd https://raw.githubusercontent.com/Capricoinofficial/coldstaking/master/VERSION 2>/dev/null )
         if [ -n "$GITHUB_COLDSTAKING_VERSION" ] && [ "$COLDSTAKING_VERSION" != "$GITHUB_COLDSTAKING_VERSION" ]; then
             echo -e "\n"
             echo -e "${C_RED}${0##*/} ${messages["requires_updating"]} $C_GREEN$GITHUB_COLDSTAKING_VERSION$C_RED\n${messages["requires_sync"]}$C_NORM\n"
